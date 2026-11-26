@@ -45,6 +45,7 @@ export function ThemeToggle({ className, size = "md" }: ThemeToggleProps) {
       onThemeChange={setTheme}
       duration={TOGGLE_DURATION_MS}
       variant="circle"
+      fromCenter={false}
       className={buttonClass}
       aria-label={
         resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"

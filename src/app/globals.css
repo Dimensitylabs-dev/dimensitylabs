@@ -49,10 +49,21 @@
   mix-blend-mode: normal;
 }
 
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
 ::view-transition-group(root) {
   animation-duration: var(--magicui-theme-toggle-vt-duration, 900ms);
 }
 
+/* Collapsed pin until WAAPI expands from the toggle button center. */
 html[data-magicui-theme-vt="active"]::view-transition-new(root) {
-  clip-path: var(--magicui-theme-vt-clip-from);
+  clip-path: circle(
+    0px at var(--magicui-theme-vt-x, 0px) var(--magicui-theme-vt-y, 0px)
+  );
 }

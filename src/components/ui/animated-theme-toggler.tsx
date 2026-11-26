@@ -210,8 +210,8 @@ export const AnimatedThemeToggler = ({
     )
       return
 
-    // innerWidth/innerHeight (not visualViewport): percentages must resolve
-    // against the snapshot reference box, which includes classic scrollbars.
+    // Prefer layout viewport size for radius math; origin always from the button
+    // (or viewport center when fromCenter), in CSS px matching getBoundingClientRect.
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
 
@@ -221,9 +221,14 @@ export const AnimatedThemeToggler = ({
       x = viewportWidth / 2
       y = viewportHeight / 2
     } else {
-      const { top, left, width, height } = button.getBoundingClientRect()
-      x = left + width / 2
-      y = top + height / 2
+      const rect = button.getBoundingClientRect()
+      // visualViewport offset corrects mobile browser chrome / pinch-zoom drift
+      // so the reveal stays locked to the toggle, not a screen edge.
+      const vv = window.visualViewport
+      const ox = vv?.offsetLeft ?? 0
+      const oy = vv?.offsetTop ?? 0
+      x = rect.left + rect.width / 2 + ox
+      y = rect.top + rect.height / 2 + oy
     }
 
     const maxRadius = Math.hypot(
@@ -235,7 +240,7 @@ export const AnimatedThemeToggler = ({
       const newTheme = !isDark
       // Always toggle the class synchronously so the View Transitions API
       // snapshots the new theme inside the startViewTransition callback.
-      document.documentElement.classList.toggle("dark")
+      document.documentElement.classList.toggle("dark", newTheme)
       if (isControlled) {
         onThemeChange?.(newTheme ? "dark" : "light")
       } else {
@@ -249,14 +254,23 @@ export const AnimatedThemeToggler = ({
       return
     }
 
-    const clipPath = getThemeTransitionClipPaths(
-      shape,
-      x,
-      y,
-      maxRadius,
-      viewportWidth,
-      viewportHeight
-    )
+    // Pixel clip-paths keep the circle origin on the button. Percentage
+    // coordinates were resolving against the wrong VT snapshot box and made
+    // the wipe appear to start from a screen edge.
+    const clipPath =
+      shape === "circle"
+        ? [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${maxRadius}px at ${x}px ${y}px)`,
+          ]
+        : getThemeTransitionClipPaths(
+            shape,
+            x,
+            y,
+            maxRadius,
+            viewportWidth,
+            viewportHeight
+          )
 
     const root = document.documentElement
     root.dataset.magicuiThemeVt = "active"
@@ -264,6 +278,8 @@ export const AnimatedThemeToggler = ({
       "--magicui-theme-toggle-vt-duration",
       `${duration}ms`
     )
+    root.style.setProperty("--magicui-theme-vt-x", `${x}px`)
+    root.style.setProperty("--magicui-theme-vt-y", `${y}px`)
     // Pin the collapsed clip-path via CSS so Firefox does not paint the new
     // theme unclipped between snapshot and the ready.then() JS animation.
     root.style.setProperty("--magicui-theme-vt-clip-from", clipPath[0])
@@ -272,6 +288,8 @@ export const AnimatedThemeToggler = ({
       delete root.dataset.magicuiThemeVt
       root.style.removeProperty("--magicui-theme-toggle-vt-duration")
       root.style.removeProperty("--magicui-theme-vt-clip-from")
+      root.style.removeProperty("--magicui-theme-vt-x")
+      root.style.removeProperty("--magicui-theme-vt-y")
       cancelAnim()
     }
 
