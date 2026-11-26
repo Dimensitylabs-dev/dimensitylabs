@@ -1,0 +1,41 @@
+/* Vante Video Ribbon — styles from the reference (scoped to .vante-ribbon). */
+.vante-ribbon{
+  --bg:#0a0a0b;--ink:#f4f1ea;--mid:#8d8b86;--line:rgba(244,241,234,.14);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  width:100%;
+  /* Do not set overflow here — overflow-x:hidden computes overflow-y:auto and breaks sticky. */
+}
+.vante-ribbon *,.vante-ribbon *::before,.vante-ribbon *::after{box-sizing:border-box;margin:0;padding:0}
+.vante-ribbon #track{height:1100vh;min-height:1100svh}
+.vante-ribbon .stage{
+  position:sticky;
+  top:0;
+  width:100%;
+  height:100vh;
+  height:100dvh;
+  height:100svh;
+  overflow:hidden;
+  background:var(--bg);
+}
+.vante-ribbon .hl{position:absolute;left:0;right:0;font-weight:400;font-size:clamp(32px,6.7vw,130px);line-height:1;letter-spacing:-.055em;white-space:nowrap;text-align:center;will-change:transform}
+.vante-ribbon #l1{top:calc(50% - .98em)}
+.vante-ribbon #l2{top:calc(50% + .03em)}
+.vante-ribbon #l1 span,.vante-ribbon #l2 span{display:inline-block}
+.vante-ribbon #l1 span{margin-right:15vw}
+.vante-ribbon #l2 span{margin-left:15vw}
+.vante-ribbon #cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(15em,80vw);text-align:center;font-size:clamp(9px,.74vw,13px);font-weight:500;line-height:1.3;letter-spacing:.03em;text-transform:uppercase;color:var(--ink)}
+.vante-ribbon #gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.vante-ribbon #glow{position:absolute;left:0;right:0;top:0;height:42%;background:linear-gradient(rgba(244,241,234,.1),rgba(244,241,234,0));pointer-events:none}
+.vante-ribbon #cross{position:absolute;left:clamp(18px,4vw,32px);right:clamp(18px,4vw,32px);top:37.5%;height:1px;background:var(--line);pointer-events:none}
+.vante-ribbon #cross i{position:absolute;left:50%;top:-.62em;margin-left:-.3em;font:400 13px 'IBM Plex Mono',monospace;color:var(--mid);background:var(--bg);padding:0 .3em;line-height:1.2}
+.vante-ribbon #rule{position:absolute;left:3.5vw;right:3.5vw;top:50%;height:1px;background:var(--line);transform-origin:left;transform:scaleX(0);pointer-events:none}
+.vante-ribbon #name{position:absolute;left:0;top:0;padding:6px 11px;background:var(--ink);color:var(--bg);border-radius:99px;font-size:11.5px;font-weight:600;letter-spacing:.04em;pointer-events:none;opacity:0;transition:opacity .16s;white-space:nowrap;z-index:2}
+
+@media (max-width:760px){
+  .vante-ribbon .hl{letter-spacing:-.04em}
+  .vante-ribbon #l1 span{margin-right:8vw}
+  .vante-ribbon #l2 span{margin-left:8vw}
+}

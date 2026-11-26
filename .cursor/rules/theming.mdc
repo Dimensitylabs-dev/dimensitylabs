@@ -1,0 +1,28 @@
+---
+description: Dimensity Labs global theme system — mandatory for all UI work
+alwaysApply: true
+---
+
+# Theme system (mandatory)
+
+Every new UI component and page must be theme-aware by default and must use the centralized global theme system. Never implement an independent theme mechanism.
+
+## Required
+
+- Use semantic tokens from `src/app/globals.css` (`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-card`, etc.).
+- Use `ThemeProvider` only from `src/components/theme/theme-provider.tsx` (already mounted in the root layout).
+- Use `useTheme` from `@/hooks/use-theme` for client theme reads/writes.
+- Use `ThemeToggle` from `@/components/theme/theme-toggle` for UI controls.
+- Support Light, Dark, and System via the existing `next-themes` integration.
+
+## Forbidden
+
+- Per-page or per-component theme state
+- Extra theme providers
+- Scattered `localStorage` theme access
+- Hardcoded theme-specific colors for general UI chrome (`bg-floral-white`, `text-smoky-black`, raw hex) without a documented exception
+- Converting entire layouts/pages to Client Components just for theming
+
+## Reference
+
+See `docs/design-system/THEMING.md` for architecture, tokens, and testing.

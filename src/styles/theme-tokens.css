@@ -1,0 +1,92 @@
+/*
+  Semantic theme tokens for Dimensity Labs.
+  Kept outside the Tailwind entry so light/dark variable maps are preserved.
+*/
+
+:root {
+  --smoky-black: #11120d;
+  --olive: #565449;
+  --bone: #d8cfbc;
+  --floral-white: #fffbf4;
+
+  --background: #fffbf4;
+  --foreground: #11120d;
+  --surface: #f7f1e6;
+  --surface-secondary: #efe7d8;
+  --card: #fffcf7;
+  --card-foreground: #11120d;
+  --primary: #11120d;
+  --primary-foreground: #fffbf4;
+  --secondary: #d8cfbc;
+  --secondary-foreground: #11120d;
+  --muted: #efe7d8;
+  --muted-foreground: #565449;
+  --accent: #565449;
+  --accent-foreground: #fffbf4;
+  --border: rgb(86 84 73 / 0.22);
+  --input: rgb(86 84 73 / 0.28);
+  --ring: #565449;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+
+  --shadow-soft: 0 12px 40px rgb(17 18 13 / 0.08);
+
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+
+  color-scheme: light;
+}
+
+html.dark {
+  --background: #11120d;
+  --foreground: #fffbf4;
+  --surface: #1a1b15;
+  --surface-secondary: #24251e;
+  --card: #1a1b15;
+  --card-foreground: #fffbf4;
+  --primary: #d8cfbc;
+  --primary-foreground: #11120d;
+  --secondary: #24251e;
+  --secondary-foreground: #d8cfbc;
+  --muted: #24251e;
+  --muted-foreground: #a39e8f;
+  --accent: #565449;
+  --accent-foreground: #fffbf4;
+  --border: rgb(216 207 188 / 0.16);
+  --input: rgb(216 207 188 / 0.22);
+  --ring: #d8cfbc;
+
+  --shadow-soft: 0 12px 40px rgb(0 0 0 / 0.35);
+
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Soften fallback theme changes when View Transitions are unavailable. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-magicui-theme-vt="active"]) body {
+    transition:
+      background-color 500ms var(--ease-standard),
+      color 500ms var(--ease-standard);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
