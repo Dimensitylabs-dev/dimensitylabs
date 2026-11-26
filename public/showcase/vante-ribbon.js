@@ -48,7 +48,7 @@ export function mount() {
   renderer.setClearColor(0, 0);
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   const scene = new THREE.Scene();
-  const FOV = 35, camera = new THREE.PerspectiveCamera(FOV, 1, .1, 100);
+  const FOV = 30, camera = new THREE.PerspectiveCamera(FOV, 1, .1, 100);
 
   /* ---------- ribbon path ---------- */
   let path, PATH_L = 1;
@@ -59,7 +59,7 @@ export function mount() {
     for (let i = 0; i <= 160; i++) {
       const t = i / 160, ph = mix(PH0, PH1, t), cs = Math.cos(ph), u = 2 * t - 1;
       // a shallow arc close to the camera, then long runs far behind it
-      const depth = cs > 0 ? 7.6 + 16.4 * cs ** .9 : 7.6 + 2.2 * cs;
+      const depth = cs > 0 ? 6.2 + 16.4 * cs ** .9 : 6.2 + 2.2 * cs;
       const edge = .84 + .5 * span(.14 - t, 0, .14) + .8 * span(t, .84, 1);
       pts.push(new THREE.Vector3(edge * Math.sin(ph) * depth * .561, .5 * Math.sign(u) * Math.abs(u) ** 1.4 * depth * .63, -depth));
     }
@@ -74,7 +74,7 @@ export function mount() {
   };
 
   /* ---------- cards ---------- */
-  const CARD_W = 2.1, CARD_H = 1.32, GAP = .03, STEP = CARD_W + GAP, NX = 16, NY = 3;
+  const CARD_W = 2.45, CARD_H = 1.54, GAP = .04, STEP = CARD_W + GAP, NX = 16, NY = 3;
   const MAX_PLAYING = 3;
   const vs = `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
   const fs = `uniform sampler2D map;uniform vec2 cover;uniform float aspect,ready,radius;varying vec2 vUv;
@@ -96,7 +96,7 @@ void main(){
     tex.colorSpace = THREE.NoColorSpace; tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.generateMipmaps = false;
     const geo = new THREE.PlaneGeometry(1, 1, NX, NY);
     const mat = new THREE.ShaderMaterial({vertexShader:vs, fragmentShader:fs, transparent:true, side:THREE.DoubleSide,
-      uniforms:{map:{value:tex}, cover:{value:new THREE.Vector2(1, 1)}, aspect:{value:CARD_W / CARD_H}, ready:{value:0}, radius:{value:.018}}});
+      uniforms:{map:{value:tex}, cover:{value:new THREE.Vector2(1, 1)}, aspect:{value:CARD_W / CARD_H}, ready:{value:0}, radius:{value:.02}}});
     const mesh = new THREE.Mesh(geo, mat); mesh.frustumCulled = false; scene.add(mesh);
     const c = {i, title, slug, href: `/work/${slug}`, v, tex, geo, mat, mesh, rect:null, rank: 0};
     v.addEventListener('loadeddata', () => {
@@ -108,23 +108,41 @@ void main(){
   });
 
   /* ---------- layout ---------- */
-  const GZ = 8;
+  const GZ = 6.6;
   let W = 1, H = 1, asp = 1, cols = 3, rows = 2, tanH = .3153;
   function resize() {
     W = innerWidth; H = innerHeight; asp = W / H;
     const dprCap = isMobile() ? 1 : 1.5;
     renderer.setPixelRatio(Math.min(devicePixelRatio, dprCap));
     renderer.setSize(W, H, false);
-    camera.aspect = asp; camera.fov = asp < 16 / 9 ? Math.atan(.561 / asp) * 360 / Math.PI : FOV; camera.updateProjectionMatrix();
+    camera.aspect = asp;
+    // Keep horizontal FOV stable on mild crop; cap hard on portrait phones
+    // so the ribbon does not shrink to dots (atan(.561/asp) → 100°+ FOV).
+    if (isMobile()) {
+      // Phones must not use the atan aspect branch — it blows FOV out and shrinks the ribbon.
+      camera.fov = 32;
+    } else if (asp >= 16 / 9) {
+      camera.fov = FOV;
+    } else if (asp >= 0.85) {
+      camera.fov = Math.atan(.561 / asp) * 360 / Math.PI;
+    } else {
+      camera.fov = 36;
+    }
+    camera.updateProjectionMatrix();
     tanH = Math.tan(camera.fov * Math.PI / 360);
     cols = asp < .9 ? 2 : 3; rows = asp < .9 ? 3 : 2;
   }
   addEventListener('resize', resize); resize(); buildPath();
   function grid(i) {
-    const vh = 2 * GZ * tanH, vw = vh * asp, gw = vw * (cols === 3 ? .74 : .88), gap = gw * .017;
-    const cw = (gw - gap * (cols - 1)) / cols, ch = cw / (CARD_W / CARD_H), gh = ch * rows + gap * 1.6 * (rows - 1);
+    const vh = 2 * GZ * tanH, vw = vh * asp;
+    // Portrait: slightly taller/narrower frame so the 2×3 grid fills the stage.
+    const gw = vw * (cols === 3 ? .88 : asp < 0.72 ? .94 : .90);
+    const gap = gw * (asp < 0.72 ? .028 : .017);
+    const cw = (gw - gap * (cols - 1)) / cols, ch = cw / (CARD_W / CARD_H);
+    const rowGap = gap * (asp < 0.72 ? 1.25 : 1.6);
+    const gh = ch * rows + rowGap * (rows - 1);
     const c = i % cols, r = Math.floor(i / cols);
-    return {x:-gw / 2 + cw / 2 + c * (cw + gap), y:gh / 2 - ch / 2 - r * (ch + gap * 1.6), w:cw, h:ch, vw, vh, c, r};
+    return {x:-gw / 2 + cw / 2 + c * (cw + gap), y:gh / 2 - ch / 2 - r * (ch + rowGap), w:cw, h:ch, vw, vh, c, r};
   }
 
   /* ---------- scroll ---------- */
@@ -178,11 +196,18 @@ void main(){
     const pp = p;
     // headline runs right across the page in opposite directions
     const rise = 1 - out(span(pp, 0, .12));
-    const run = mix(-50, 76, span(pp, 0, .58));
-    l1.style.transform = `translate3d(${run}vw,${rise * 34}vh,0)`;
-    l2.style.transform = `translate3d(${-run}vw,${rise * 34}vh,0)`;
-    const capA = 1 - span(pp, .52, .57);
-    cap.style.opacity = capA; cap.style.transform = `translate(-50%,calc(-50% + ${rise * 34}vh))`;
+    const mobile = isMobile();
+    const runFrom = mobile ? -42 : -50;
+    const runTo = mobile ? 58 : 76;
+    const riseAmt = mobile ? 22 : 34;
+    const run = mix(runFrom, runTo, span(pp, 0, .58));
+    const hlFade = 1 - span(pp, .62, .72);
+    l1.style.transform = `translate3d(${run}vw,${rise * riseAmt}vh,0)`;
+    l2.style.transform = `translate3d(${-run}vw,${rise * riseAmt}vh,0)`;
+    l1.style.opacity = String(hlFade);
+    l2.style.opacity = String(hlFade);
+    const capA = (1 - span(pp, .52, .57)) * hlFade;
+    cap.style.opacity = String(capA); cap.style.transform = `translate(-50%,calc(-50% + ${rise * riseAmt}vh))`;
     const intro = 1 - span(pp, 0, .05);
     for (const id of ['cross', 'glow']) {
       const el = $(id); if (el) el.style.opacity = intro;

@@ -54,7 +54,7 @@ export function VanteRibbon() {
     script.type = "module";
     script.dataset.vanteRibbon = "true";
     script.textContent = `
-      import { mount } from "/showcase/vante-ribbon.js?v=6";
+      import { mount } from "/showcase/vante-ribbon.js?v=10";
       const dispose = mount();
       window.dispatchEvent(new CustomEvent("${READY}", { detail: dispose }));
     `;

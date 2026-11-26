@@ -64,28 +64,28 @@ async function CaseStudyContent({
   }
 
   return (
-    <section className="flex min-h-svh w-full items-center">
-      <Container className="w-full py-16">
+    <section className="flex min-h-svh w-full items-start sm:items-center">
+      <Container className="w-full py-10 sm:py-16">
         <Link
           href="/#work"
           className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           ← Back to work
         </Link>
-        <p className="mt-8 text-sm uppercase tracking-[0.16em] text-muted-foreground">
+        <p className="mt-6 text-xs uppercase tracking-[0.16em] text-muted-foreground sm:mt-8 sm:text-sm">
           {study.category} · {study.client}
         </p>
-        <h1 className="mt-3 text-3xl font-medium text-foreground sm:text-5xl">
+        <h1 className="mt-3 text-3xl font-medium tracking-tight text-foreground sm:text-5xl">
           {study.title}
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+        <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
           {study.summary}
         </p>
-        <p className="mt-4 max-w-2xl text-muted-foreground">
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:mt-4 sm:text-base">
           {study.description}
         </p>
         {study.video ? (
-          <div className="mt-10 overflow-hidden rounded-xl border border-border bg-card">
+          <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card sm:mt-10">
             <video
               className="aspect-video w-full object-cover"
               src={study.video}
